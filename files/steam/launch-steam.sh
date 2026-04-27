@@ -29,11 +29,11 @@ if [ -z "${STEAMROOT}" ]; then
 	exit 1
 fi
 
-# pid of running steam for this user
-PIDFILE="$STEAMHOME/steam.pid"
+# use steamrt3 flag to check for first launch
+FIRSTLAUNCH="$STEAMROOT/.steam-enable-steamrt64-client"
 
 # See if this is the initial launch of Steam
-if [ ! -f "$PIDFILE" ]; then
+if [ ! -f "$FIRSTLAUNCH" ]; then
 	INITIAL_LAUNCH=true
 else
 	INITIAL_LAUNCH=false
