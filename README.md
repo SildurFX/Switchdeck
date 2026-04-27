@@ -13,10 +13,10 @@
 ---
 
 ## Information
-*   **Box64 Required:** You **must** install [box64](https://github.com/ptitseb/box64) to run games.
-*   **OpenGL Mode:** Some games may require OpenGL to boot. Use this launch option:  
-    `PROTON_USE_WINED3D=1 %command%`
-*   **Customization:** `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
+*  You **must** install [box64](https://github.com/ptitseb/box64) to run games.
+*  Some games may require OpenGL to boot. Use this launch option:  
+   `PROTON_USE_WINED3D=1 %command%`
+*  `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 
 *Credits to Ivy for the original steam-arm64 script*
 
