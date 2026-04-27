@@ -27,6 +27,8 @@ if [ -d "$STEAMROOT" ] || [ -d "$STEAMHOME" ]; then
 			# Make steam folders
 			mkdir -p "$STEAMROOT"
 			mkdir -p "$STEAMHOME"
+			ln -fsn "$STEAMROOT" "$STEAMHOME/root"
+			ln -fsn "$STEAMROOT" "$STEAMHOME/steam"	
             ;;
         *)
             echo "Abort: Clean installation is required to proceed."
@@ -76,13 +78,13 @@ if [ -x "$RTARM64ROOT/steam" ]; then
 	wget -q -t 5 -O- "https://github.com/SildurFX/Switchdeck/archive/refs/heads/main.tar.gz" | tar xz -C "$TEMP_SD" --strip-components=1 || exit_on_error "Failed to download/extract downgrade files"
 
     if [ -f "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" ]; then
-        tar -xzf "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" -C "$STEAMROOT/"
+        tar -xzf "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" -C "$STEAMROOT/linuxarm64"
     fi
 
     # Reassemble and extract steamrtarm64
     if [ -f "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.partaa" ]; then
         cat "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.part"* > "$TEMP_SD/steamrtarm64.tar.gz"
-        tar -xzf "$TEMP_SD/steamrtarm64.tar.gz" -C "$STEAMROOT/"
+        tar -xzf "$TEMP_SD/steamrtarm64.tar.gz" -C "$STEAMROOT/steamrtarm64"
         rm -f "$TEMP_SD/steamrtarm64.tar.gz"
     fi
 
