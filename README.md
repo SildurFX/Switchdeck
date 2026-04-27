@@ -18,6 +18,13 @@
    `PROTON_USE_WINED3D=1 %command%`
 *  `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 
+---
+
+## Explanation:
+This script downloads and installs the latest Steam ARM64 version.
+Builds newer than April 15th, 2026, do not work on the Nintendo Switch, so this script will automatically downgrade parts of the client to that version to prevent "illegal instruction" crashes.
+The L4T kernel 4.9 is too old to use FEX-Emu, instead this script sets up an x86_64 runtime container (SteamRT3) to use with Proton x86_64 and box64.
+
 *Credits to Ivy for the original steam-arm64 script*
 
 ---
