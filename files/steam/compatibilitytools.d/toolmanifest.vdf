@@ -1,0 +1,8 @@
+"manifest"
+{
+  "version" "2"
+  "commandline" "/runtime-helper.sh $STEAM_BASE_FOLDER/compatibilitytools.d/SteamLinuxRuntime_sniper/_v2-entry-point --verb=%verb% --verbose -- $STEAM_COMPAT_TOOL_PATHS/proton %verb%"
+  //"require_tool_appid" "1628350"
+  "use_sessions" "1"
+  "compatmanager_layer_name" "proton"
+}
