@@ -49,6 +49,7 @@ if [ "$INITIAL_LAUNCH" = true ]; then
 	ln -fsn "$STEAMROOT/ubuntu12_32" "$STEAMHOME/bin32"
 	ln -fsn "$STEAMROOT/ubuntu12_64" "$STEAMHOME/bin64"	
 	ln -fsn "$STEAMHOME/bin32" "$STEAMHOME/bin"
+	ln -fsn "$STEAMROOT/steamrtarm64" "$STEAMROOT/steamrtarm32"	
 
 	# Add steam to path
 	mkdir -p "$HOME/.local/bin"
