@@ -19,6 +19,7 @@
 *   **Customization:** `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 
 *Credits to Ivy for the original steam-arm64 script*
+
 ---
 
 ### Legal Notice
