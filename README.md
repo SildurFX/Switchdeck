@@ -3,7 +3,7 @@
 ---
 
 ## Installation
-1. Download and run `install-steam.sh`.
+1. Download and run `install-steam.sh` in your **terminal**.
 2. Download the latest [Proton-CachyOS x86_64 release](https://github.com/CachyOS/proton-cachyos/releases) and unpack it into:  
    `~/.local/share/Steam/compatibilitytools.d/`
 3. Copy `runtime-helper.sh` and `toolmanifest.vdf` from `/Steam/compatibilitytools.d/` into your new `proton-cachyos-x86_64` folder (overwrite when prompted).
