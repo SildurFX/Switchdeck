@@ -16,6 +16,7 @@
 *  You **must** install [box64](https://github.com/ptitseb/box64) to run games.
 *  Some games may require OpenGL to boot. Use this launch option:  
    `PROTON_USE_WINED3D=1 %command%`
+*  Some games may not boot correctly inside the runtime container. To bypass it, run steam-boot.sh directly from the steam folder. **Note:** This requires a clean Proton installation without the modifications from Step 3."
 *  `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 
 ---
