@@ -16,12 +16,12 @@
 *  You **must** install [box64](https://github.com/ptitseb/box64) to run games.
 *  Some games may require OpenGL to boot. Use this launch option:  
    `PROTON_USE_WINED3D=1 %command%`
-*  Some games may not boot correctly inside the runtime container. To bypass it, run steam-boot.sh directly from the steam folder. **Note:** This requires a clean Proton installation without the modifications from Step 3."
+*  Some games may not boot correctly inside the runtime container. To bypass it, run steam-boot.sh directly from the steam folder. **Note:** This requires a clean Proton installation without the modifications from Step 3.
 *  `steam-boot.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 
 ---
 
-## Explanation:
+## Explanation
 This script downloads and installs the latest Steam ARM64 version.
 Builds newer than April 15th, 2026, do not work on the Nintendo Switch, so this script will automatically downgrade parts of the client to that version to prevent "illegal instruction" crashes.
 The L4T kernel 4.9 is too old to use FEX-Emu, instead this script sets up an x86_64 runtime container (SteamRT3) to use with Proton x86_64 and box64.
