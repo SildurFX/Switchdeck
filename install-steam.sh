@@ -18,7 +18,7 @@ RTARM64ROOT="$STEAMROOT/steamrtarm64"
 # Check if either Steam directory exists
 if [ -d "$STEAMROOT" ] || [ -d "$STEAMHOME" ]; then
     echo "Steam directories already exist."
-    read -p "A clean installation is required. Would you like to delete them now for a clean install? (y/N): " choice
+    read -p "A clean installation is recommended. Would you like to delete them now? (y/N): " choice
     case "$choice" in 
         [yY][eE][sS]|[yY]) 
             echo "Deleting $STEAMROOT and $STEAMHOME..."
@@ -27,12 +27,19 @@ if [ -d "$STEAMROOT" ] || [ -d "$STEAMHOME" ]; then
 			# Make steam folders
 			mkdir -p "$STEAMROOT"
 			mkdir -p "$STEAMHOME"
-			ln -fsn "$STEAMROOT" "$STEAMHOME/root"
-			ln -fsn "$STEAMROOT" "$STEAMHOME/steam"	
+            ln -fsn "$STEAMROOT" "$STEAMHOME/root"
+	        ln -fsn "$STEAMROOT" "$STEAMHOME/steam"	
             ;;
         *)
-            echo "Abort: Clean installation is required to proceed."
-            exit 1
+            echo "Continuing with dirty installation"
+            shopt -s extglob dotglob
+            eval "rm -rf "$STEAMROOT"/!(compatibilitytools.d|depotcache|steamapps|userdata)"
+            rm -rf "$STEAMHOME"
+            # Make steam folders
+			mkdir -p "$STEAMROOT"
+			mkdir -p "$STEAMHOME"
+            ln -fsn "$STEAMROOT" "$STEAMHOME/root"
+	        ln -fsn "$STEAMROOT" "$STEAMHOME/steam"	
             ;;
     esac
 fi
