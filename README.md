@@ -8,6 +8,7 @@
    `~/.local/share/Steam/compatibilitytools.d/`
 3. Restart Steam, go to **Settings** -> **Compatibility**, and select **Proton-CachyOS**.
 4. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
+
 **Note:** `launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched:
 Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d` folder into your Proton folder.
 
