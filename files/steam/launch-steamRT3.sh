@@ -14,7 +14,7 @@ log () {
 
 STEAMROOT="$HOME/.local/share/Steam"
 
-# enable the SteamRT3 client flag, even though this does nothing on ARM64 yet
+# SteamRT3 client flag, does nothing on ARM64 yet
 # touch "$STEAMROOT/.steam-enable-steamrt64-client"
 
 if [ -x "$STEAMROOT/steamrtarm64/pv-runtime/steam-runtime-steamrt" ]; then
