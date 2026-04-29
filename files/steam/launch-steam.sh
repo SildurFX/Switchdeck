@@ -1,8 +1,31 @@
 #!/usr/bin/env bash
 
 # verbose
-#export PS4='${LINENO}: '
-#set -x
+# export PS4='${LINENO}: '
+# set -x
+
+# Proton:
+export PROTON_USE_SDL=1		# Fix for controller issues with joycons
+export PROTON_USE_WOW64=1
+export PROTON_DXVK_SAREK=1
+
+# WINED3D:
+export WINEESYNC=1
+export STAGING_SHARED_MEMORY=1
+export __GL_THREADED_OPTIMIZATIONS=1
+
+# BOX64:
+export BOX64_PROFILE=fast
+export BOX64_X87_NO80BITS=1
+export BOX64_DYNAREC_CALLRET=1
+export BOX64_DYNAREC_BIGBLOCK=3
+# unstable
+# export BOX64_DYNAREC_WAIT=0
+# export BOX64_DYNAREC_DIRTY=2
+
+# Disable logging:
+export BOX64_LOG=0
+export WINEDEBUG=-all
 
 set -o pipefail
 shopt -s failglob
@@ -11,35 +34,20 @@ set -u
 log () {
 	echo "launch-steam.sh[$$]: $*" >&2 || :
 }
-# This version interprets backslash escapes like echo -e
-log_e () {
-	echo -e "launch-steam.sh[$$]: $*" >&2 || :
-}
-exit_on_error () {
-	log "$*"
-	exit 1
-}
 
+# Allow us to debug what's happening in the script if necessary
+if [ "${STEAM_DEBUG-}" ]; then
+	set -x
+fi
+
+export TEXTDOMAIN=steam
+export TEXTDOMAINDIR=/usr/share/locale
+
+MAGIC_RESTART_EXITCODE=42
 STEAMROOT="$HOME/.local/share/Steam"
 STEAMHOME="$HOME/.steam"
-RTARM64ROOT="$STEAMROOT/steamrtarm64"
 
-if [ -z "${STEAMROOT}" ]; then
-	log $"Couldn't find Steam root directory from "$0", aborting!"
-	exit 1
-fi
-
-# use steamrt3 flag to check for first launch
-FIRSTLAUNCH="$STEAMROOT/.steam-enable-steamrt64-client"
-
-# See if this is the initial launch of Steam
-if [ ! -f "$FIRSTLAUNCH" ]; then
-	INITIAL_LAUNCH=true
-else
-	INITIAL_LAUNCH=false
-fi
-
-if [ "$INITIAL_LAUNCH" = true ]; then
+if [ ! -f "$STEAMROOT/.switchdeck-initial-launch" ]; then
 	log "creating initial symlinks"
 	ln -fsn "$STEAMROOT" "$STEAMHOME/root"
 	ln -fsn "$STEAMROOT" "$STEAMHOME/steam"	
@@ -77,20 +85,46 @@ EOF
     chmod +x "$DESKTOP_FILE"
     ln -fs "$DESKTOP_FILE" "$DESKTOP_DIR/Steam.desktop"
     update-desktop-database "$MENU_DIR" 2>/dev/null
+
+	touch "$STEAMROOT/.switchdeck-initial-launch"	
 fi
 
-# enable the SteamRT3 client flag, even though this does nothing on ARM64 yet
-touch "$STEAMROOT/.steam-enable-steamrt64-client"
+function has_beta_optin()
+{
+	local betafile="$STEAMROOT/package/beta"
+	if [ ! -r "$betafile" ]; then
+		# No beta file, not in beta
+		return 1
+	fi
 
-if [ -x "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt" ]; then
-	# we're ready to launch the runtime-service and steam
-    log "Starting steam-runtime-launcher-service"
-    "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt/pressure-vessel/bin/steam-runtime-launcher-service" \
-		--bus-name com.steampowered.PressureVessel.LaunchAlongsideSwitchdeck \
-		--alongside-steam \
-		--verbose &
-    log "Starting steamexe inside the steam-runtime"
-    "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt/_v2-entry-point" -- "$STEAMROOT/steam-boot.sh" "$@"
-else
-    log "steam-runtime and pressure-vessel are missing, check your installation"
+	local betaname="$(<"$betafile")"
+	local stablenames=( "" "steamdeck_stable" "chromeos_public_88ac3843c888c7adb9cd406fbac4ff7a7d2cde9b" )
+
+	for name in "${stablenames[@]}"; do
+		if [ "$betaname" == "$name" ]; then
+			# Opted into one of the "stable" betas
+			return 1
+		fi
+	done
+
+	return 0
+}
+
+if has_beta_optin; then
+    if [ -x "$STEAMROOT/steamrtarm64/steam" ]; then
+        log "Starting Steam"
+        export LD_LIBRARY_PATH="$STEAMROOT/steamrtarm64:${LD_LIBRARY_PATH-}"
+        "$STEAMROOT/steamrtarm64/steam" "$@"
+		#strace -osteam.s.log -ff -e trace=file -e trace=execve -s 1000 --no-abbrev "$STEAMROOT/steamrtarm64/steam" "$@"
+
+        STATUS=$?
+
+        # If steam requested to restart, then restart
+        if [ $STATUS -eq $MAGIC_RESTART_EXITCODE ] ; then
+            log "Restarting Steam by request"
+            exec "$0" "$@"
+        fi
+        exit $STATUS
+    fi
 fi
+

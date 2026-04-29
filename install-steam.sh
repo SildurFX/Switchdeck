@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Steam install script for Nintendo Switch 1 (l4t) by Sildur
-# Based on "Kiri's Whimsical Automagic Steam-on-ARM script spectacular"
 
 set -euo pipefail
 
@@ -85,11 +84,13 @@ if [ -x "$RTARM64ROOT/steam" ]; then
 	wget -q -t 5 -O- "https://github.com/SildurFX/Switchdeck/archive/refs/heads/main.tar.gz" | tar xz -C "$TEMP_SD" --strip-components=1 || exit_on_error "Failed to download/extract downgrade files"
 
     if [ -f "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" ]; then
+        mkdir -p "$STEAMROOT/linuxarm64"
         tar -xzf "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" -C "$STEAMROOT/linuxarm64"
     fi
 
     # Reassemble and extract steamrtarm64
     if [ -f "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.partaa" ]; then
+        mkdir -p "$STEAMROOT/steamrtarm64"
         cat "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.part"* > "$TEMP_SD/steamrtarm64.tar.gz"
         tar -xzf "$TEMP_SD/steamrtarm64.tar.gz" -C "$STEAMROOT/steamrtarm64"
         rm -f "$TEMP_SD/steamrtarm64.tar.gz"
@@ -98,7 +99,7 @@ if [ -x "$RTARM64ROOT/steam" ]; then
     # move files and scripts
     cp -f  "$TEMP_SD/files/downgrade/steam.cfg" "$STEAMROOT/steam.cfg"
     cp -f  "$TEMP_SD/files/steam/launch-steam.sh" "$STEAMROOT/"
-    cp -f  "$TEMP_SD/files/steam/steam-boot.sh" "$STEAMROOT/"
+    cp -f  "$TEMP_SD/files/steam/launch-steamRT3.sh" "$STEAMROOT/"
     mkdir -p "$STEAMROOT/compatibilitytools.d"
     cp -rf "$TEMP_SD/files/steam/compatibilitytools.d/." "$STEAMROOT/compatibilitytools.d/"
 

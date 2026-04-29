@@ -1,6 +1,6 @@
 NOTICE
 
-The bash scripts (Launch-Steam.sh, steam-boot.sh, etc.) in this repository 
+The bash scripts (launch-steam.sh, launch-steamRT3.sh, etc.) in this repository 
 are provided under the MIT License.
 
 The Steam binaries, libraries, and resources located in /files/downgrade/ 
