@@ -16,10 +16,10 @@ Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d`
 
 ## Information
 *  You **must** install [box64](https://github.com/ptitseb/box64) to run games.
-*  Some games may require OpenGL to boot. Use this launch option:  
-   `PROTON_USE_WINED3D=1 %command%`
-*  `launch-steamRT3.sh` is optional because some games may not boot correctly inside the runtime container.
+*  [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases) is recommended because it comes bundled with [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek) and the Switch only supports Vulkan 1.2.
 *  `launch-steam.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
+*  `launch-steamRT3.sh` is optional because some games may not boot correctly inside the runtime container.
+*  Game support is currently all over the place, some games may only boot in openGL mode via: `PROTON_USE_WINED3D=1 %command%` or [Proton 11](https://github.com/CachyOS/proton-cachyos/actions/runs/25021437994).
 
 ---
 
