@@ -10,7 +10,6 @@ export PROTON_USE_WOW64=1
 export PROTON_DXVK_SAREK=1
 
 # WINED3D:
-export WINEESYNC=1
 export STAGING_SHARED_MEMORY=1
 export __GL_THREADED_OPTIMIZATIONS=1
 
@@ -22,6 +21,13 @@ export BOX64_DYNAREC_BIGBLOCK=3
 # unstable
 # export BOX64_DYNAREC_WAIT=0
 # export BOX64_DYNAREC_DIRTY=2
+
+# Wine sync
+export WINEESYNC=0			# Supported but crashes dxvk and only works with wined3d
+export PROTON_NO_ESYNC=1
+# Unsupported by Kernel 4.9:
+export PROTON_NO_FSYNC=1	# requires Kernel 5.x+
+export PROTON_NO_NTSYNC=1	# requires Kernel 6.12+
 
 # Disable logging:
 export BOX64_LOG=0
