@@ -4,12 +4,13 @@
 
 ## Installation
 1. Download and run `install-steam.sh` in your **terminal**.
-2. Download the latest [Proton-CachyOS x86_64 release](https://github.com/CachyOS/proton-cachyos/releases) and unpack it into:  
+2. Download [Proton-CachyOS x86_64](https://github.com/CachyOS/proton-cachyos/releases) (Proton 10 recommended) and unpack it into:  
    `~/.local/share/Steam/compatibilitytools.d/`
 3. Restart Steam, go to **Settings** -> **Compatibility**, and select **Proton-CachyOS**.
 4. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
 
-**Note:** `launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched:
+**Note:** `update-switch.sh` can be used to update all switchdeck scripts and parts of the steam client.
+`launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched:
 Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d` folder into your Proton folder.
 
 ---
@@ -20,7 +21,7 @@ Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d`
 *  `launch-steam.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 *  `launch-steamRT3.sh` is optional because some games may not boot correctly inside the runtime container.
 *  `wineesync` is force-disabled in `launch-steam.sh` because it causes crashes with dxvk / vulkan.
-*  Game support is currently all over the place, some games may only boot in openGL mode via: `PROTON_USE_WINED3D=1 %command%` or [Proton 11](https://github.com/CachyOS/proton-cachyos/actions/runs/25021437994).
+*   Some games may only boot in openGL mode via: `PROTON_USE_WINED3D=1 %command%`.
 
 ---
 

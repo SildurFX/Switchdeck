@@ -5,7 +5,7 @@
 # set -x
 
 # Proton:
-export PROTON_USE_SDL=1		# Fix for controller issues with joycons
+export PROTON_USE_SDL=1					# Fix for controller issues with joycons
 export PROTON_USE_WOW64=1
 export PROTON_DXVK_SAREK=1
 
@@ -23,11 +23,11 @@ export BOX64_DYNAREC_BIGBLOCK=3
 # export BOX64_DYNAREC_DIRTY=2
 
 # Wine sync
-export WINEESYNC=0			# Supported but crashes dxvk and only works with wined3d
-export PROTON_NO_ESYNC=1
+export WINEESYNC=0						# Supported but crashes dxvk and only works with wined3d
+export PROTON_NO_ESYNC=1				# set WINEESYNC=1 and PROTON_NO_ESYNC=0 to enable esync
 # Unsupported by Kernel 4.9:
-export PROTON_NO_FSYNC=1	# requires Kernel 5.x+
-export PROTON_NO_NTSYNC=1	# requires Kernel 6.12+
+export PROTON_NO_FSYNC=1				# requires Kernel 5.x+
+export PROTON_NO_NTSYNC=1				# requires Kernel 6.12+
 
 # Disable logging:
 export BOX64_LOG=0
@@ -119,7 +119,11 @@ function has_beta_optin()
 if has_beta_optin; then
     if [ -x "$STEAMROOT/steamrtarm64/steam" ]; then
         log "Starting Steam"
-        export LD_LIBRARY_PATH="$STEAMROOT/steamrtarm64:${LD_LIBRARY_PATH-}"
+		# Flat ARM64 -> Nested ARM64 -> Flat x64 -> Nested x64
+		_rtarm=$(ls -d "$STEAMROOT/steamrtarm64/pv-runtime/steam-runtime-steamrt-arm64"/steamrt3c_platform_*/files 2>/dev/null | head -1)
+		_rtx64=$(ls -d "$STEAMROOT/steamrt64/pv-runtime/steam-runtime-steamrt"/steamrt3c_platform_*/files 2>/dev/null | head -1)
+		export LD_LIBRARY_PATH="$STEAMROOT/steamrtarm64${_rtarm:+:$_rtarm/lib/aarch64-linux-gnu:$_rtarm/lib}:$STEAMROOT/steamrt64${_rtx64:+:$_rtx64/lib/x86_64-linux-gnu:$_rtx64/lib}:${LD_LIBRARY_PATH-}"
+
         "$STEAMROOT/steamrtarm64/steam" "$@"
 		#strace -osteam.s.log -ff -e trace=file -e trace=execve -s 1000 --no-abbrev "$STEAMROOT/steamrtarm64/steam" "$@"
 

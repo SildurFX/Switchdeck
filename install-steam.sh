@@ -53,12 +53,11 @@ if [ ! -x "$RTARM64ROOT" ]; then
 	rm -rf "$STEAMROOT/linuxarm64.zip"
 fi
 
-if [ ! -x "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt" ]; then
+if [ ! -x "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64" ]; then
 	echo "Downloading steam-runtime.."
 	mkdir -p "$RTARM64ROOT/pv-runtime"
 	wget -c -t 5 -O "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" "https://repo.steampowered.com/steamrt3c/images/latest-public-beta/steam-runtime-steamrt-arm64.tar.xz" || exit_on_error "steam runtime download failed (check your internet connection)"
 	tar -xvf "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" --directory "$RTARM64ROOT/pv-runtime"
-	mv "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64" "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt"
 	rm -rf "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz"
 fi
 
@@ -100,6 +99,7 @@ if [ -x "$RTARM64ROOT/steam" ]; then
     cp -f  "$TEMP_SD/files/downgrade/steam.cfg" "$STEAMROOT/steam.cfg"
     cp -f  "$TEMP_SD/files/steam/launch-steam.sh" "$STEAMROOT/"
     cp -f  "$TEMP_SD/files/steam/launch-steamRT3.sh" "$STEAMROOT/"
+    cp -f  "$TEMP_SD/files/steam/update-switchdeck.sh" "$STEAMROOT/"
     mkdir -p "$STEAMROOT/compatibilitytools.d"
     cp -rf "$TEMP_SD/files/steam/compatibilitytools.d/." "$STEAMROOT/compatibilitytools.d/"
 
