@@ -4,7 +4,7 @@
 
 ## Installation
 1. Download and run `install-steam.sh` in your **terminal**.
-2. Download [Proton-CachyOS x86_64](https://github.com/CachyOS/proton-cachyos/releases) (Proton 10 recommended) and unpack it into:  
+2. Download [Proton-CachyOS x86_64](https://github.com/CachyOS/proton-cachyos/releases) ([Proton 10](https://github.com/CachyOS/proton-cachyos/releases/tag/cachyos-10.0-20260424-slr) recommended) and unpack it into:  
    `~/.local/share/Steam/compatibilitytools.d/`
 3. Restart Steam, go to **Settings** -> **Compatibility**, and select **Proton-CachyOS**.
 4. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
