@@ -21,7 +21,7 @@ Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d`
 *  `launch-steam.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
 *  `launch-steamRT3.sh` is optional because some games may not boot correctly inside the runtime container.
 *  `wineesync` is force-disabled in `launch-steam.sh` because it causes crashes with dxvk / vulkan.
-*   Some games may only boot in openGL mode via: `PROTON_USE_WINED3D=1 %command%`.
+*   If a game crashes on launch or has broken graphics (mostly 32 bit games) use opengl instead: `PROTON_USE_WINED3D=1 %command%`.
 
 ---
 
