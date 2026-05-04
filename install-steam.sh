@@ -57,9 +57,10 @@ fi
 if [ ! -x "$RTARM64ROOT" ]; then
 	echo "Downloading steam bootstrap.."
 	mkdir -p "$STEAMROOT/package"
+    rm -f "$STEAMROOT/package/beta"
 	echo "publicbeta" > "$STEAMROOT/package/beta"
     chmod 444 "$STEAMROOT/package/beta"
-	wget -c -t 5 -O "$STEAMROOT/linuxarm64.zip" "https://client-update.steamstatic.com/bins_linuxarm64_linuxarm64.zip.f523fa87fc6b9b5435a5e7370cb0d664ef53b50b" || exit_on_error "steam bootstrap download failed (check your internet connection)"
+	wget -q --show-progress -c -t 5 -O "$STEAMROOT/linuxarm64.zip" "https://client-update.steamstatic.com/bins_linuxarm64_linuxarm64.zip.f523fa87fc6b9b5435a5e7370cb0d664ef53b50b" || exit_on_error "steam bootstrap download failed (check your internet connection)"
 	unzip -d "$STEAMROOT" "$STEAMROOT/linuxarm64.zip" "steamrtarm64/steam"
 	chmod +x "$RTARM64ROOT/steam"
 	rm -rf "$STEAMROOT/linuxarm64.zip"
@@ -68,17 +69,31 @@ fi
 if [ ! -x "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64" ]; then
 	echo "Downloading steam-runtime.."
 	mkdir -p "$RTARM64ROOT/pv-runtime"
-	wget -c -t 5 -O "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" "https://repo.steampowered.com/steamrt3c/images/latest-public-beta/steam-runtime-steamrt-arm64.tar.xz" || exit_on_error "steam runtime download failed (check your internet connection)"
-	tar -xvf "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" --directory "$RTARM64ROOT/pv-runtime"
+	wget -q --show-progress -c -t 5 -O "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" "https://repo.steampowered.com/steamrt3c/images/latest-public-beta/steam-runtime-steamrt-arm64.tar.xz" || exit_on_error "steam runtime download failed (check your internet connection)"
+	tar -xf "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz" --directory "$RTARM64ROOT/pv-runtime" --checkpoint=200 --checkpoint-action=dot
 	rm -rf "$RTARM64ROOT/pv-runtime/steam-runtime-steamrt-arm64.tar.xz"
 fi
 
 if [ ! -d "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper" ]; then
 	echo "Downloading sniper_x86-64-runtime.."
 	mkdir -p "$STEAMROOT/compatibilitytools.d/"
-	wget -c -t 5 -O "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" "https://repo.steampowered.com/steamrt3/images/latest-container-runtime-public-beta/SteamLinuxRuntime_sniper.tar.xz" || exit_on_error "sniper_x86-64 runtime download failed (check your internet connection)"
-	tar -xvf "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" --directory "$STEAMROOT/compatibilitytools.d"
+	wget -q --show-progress -c -t 5 -O "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" "https://repo.steampowered.com/steamrt3/images/latest-container-runtime-public-beta/SteamLinuxRuntime_sniper.tar.xz" || exit_on_error "sniper_x86-64 runtime download failed (check your internet connection)"
+	tar -xf "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" --directory "$STEAMROOT/compatibilitytools.d" --checkpoint=500 --checkpoint-action=dot
     rm -rf "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz"
+fi
+
+if [ ! -d "$STEAMROOT/Switchdeck" ]; then
+    echo "Downloading DXVK-Sarek.."
+    mkdir -p "$STEAMROOT/Switchdeck"
+    SAR_URL=$(wget -qO- "https://api.github.com/repos/pythonlover02/DXVK-Sarek/releases/latest" | grep -Po '"browser_download_url": "\K.*?(?=")' | head -1)
+    
+    wget -q --show-progress -c -t 5 -O "$STEAMROOT/sarek.tar.gz" "$SAR_URL" || exit_on_error "DXVK-Sarek download failed"
+    tar -xf "$STEAMROOT/sarek.tar.gz" --directory "$STEAMROOT/Switchdeck" --strip-components=1 --checkpoint=100 --checkpoint-action=dot
+    rm -rf "$STEAMROOT/sarek.tar.gz"
+    
+    # Create version file for the update script
+    echo "$SAR_URL" | grep -Po 'v\d+\.\d+\.\d+' > "$STEAMROOT/Switchdeck/dxvk-sarek_version.txt"
+    echo "DXVK-Sarek installed successfully."
 fi
 
 # Fix controller permissions

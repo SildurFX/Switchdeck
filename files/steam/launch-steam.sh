@@ -14,8 +14,9 @@
 
 ########################################################################################################################################
 
+STEAMDECK_MODE="false"                  # Toggle steamdeck / big picture mode for steam.
+
 # Proton-CachyOS:
-export PROTON_USE_SDL=1                 # Fix for controller issues with joycons
 export PROTON_USE_WOW64=1               # Use wow64 mode
 export PROTON_DXVK_SAREK=1              # Use the dxvk-sarek fork as DXVK replacement for older GPUs that don't support Vulkan 1.3 (supports Vulkan 1.1+)
 
@@ -48,11 +49,27 @@ export DXVK_LOG_LEVEL=none              # [none error warn info debug] Controls 
 # Steam launch flags:
 STEAM_FLAGS=""
 STEAM_FLAGS+=" -vrskip"                 # Skip VR initialization entirely no matter who asks for it
+STEAM_FLAGS+=" -fasthtml"               # Enable fast child html for any platform
 STEAM_FLAGS+=" -vrdisable"             	# Disable VR - never even try to load OpenVR DLLs
 STEAM_FLAGS+=" -noverifyfiles"         	# Prevents from the client from checking files integrity, especially useful when testing localization.
 STEAM_FLAGS+=" -nocrashmonitor"        	# Disables the Steam crash monitor
+STEAM_FLAGS+=" -no-cef-sandbox"         # Disables sandboxing in CEF
+STEAM_FLAGS+=" -cef-disable-sandbox"    # Disables sandboxing in CEF
+STEAM_FLAGS+=" -cef-single-process"     # Runs CEF processes in single process
+STEAM_FLAGS+=" -cef-in-process-gpu"     # Runs CEF GPU processing as thread of browser process
 STEAM_FLAGS+=" -cef-disable-breakpad"  	# Disables breakpad in crash dumps
 STEAM_FLAGS+=" -cef-disable-js-logging" # Disables console and log file logging of JS console events
+STEAM_FLAGS+=" -cef-disable-seccomp-sandbox" # Disables CEF seccomp-bpf sandbox on Linux
+# STEAM_FLAGS+=" -dev"
+
+if [ "$STEAMDECK_MODE" = "true" ]; then
+STEAM_FLAGS+=" -720p"                   # Run tenfoot (big picture) in 720p rather than 1080p
+STEAM_FLAGS+=" -steampal"               # internal codename for the Steam Deck hardware. Enables Steam Deck hardware-specific menu options.
+STEAM_FLAGS+=" -gamepadui"              # Start in gamepadui mode (same as tenfoot)
+STEAM_FLAGS+=" -steamdeck"              # Pretend to be a steamdeck.
+# STEAM_FLAGS+=" -steamos3"             # Emulates the SteamOS 3 environment.
+# STEAM_FLAGS+=" -enablealloobesteps    # Steamdeck Out of Box Experience
+fi
 
 ########################################################################################################################################
 
@@ -81,6 +98,25 @@ export TEXTDOMAINDIR=/usr/share/locale
 MAGIC_RESTART_EXITCODE=42
 STEAMROOT="$HOME/.local/share/Steam"
 STEAMHOME="$HOME/.steam"
+SWITCHDECK_DIR="$STEAMROOT/Switchdeck"
+
+if [ -d "$SWITCHDECK_DIR/x64" ]; then
+    for p in "$STEAMROOT/steamapps/common"/Proton*/files; do
+        [ -d "$p" ] || continue
+        P64="$p/lib/wine/dxvk/x86_64-windows"
+        P32="$p/lib/wine/dxvk/i386-windows"
+
+        if [ ! -L "$P64/d3d11.dll" ]; then
+            log "DXVK-Sarek not found in $(basename "$(dirname "$p")").. patching"
+            mkdir -p "$P64" "$P32"
+            for f in "$SWITCHDECK_DIR/x64"/*.dll; do ln -sf "$f" "$P64/${f##*/}"; done
+            for f in "$SWITCHDECK_DIR/x32"/*.dll; do ln -sf "$f" "$P32/${f##*/}"; done
+            log "Done!"
+        fi
+    done
+else
+    log "DXVK-Sarek source missing. Run update-switchdeck.sh"
+fi
 
 if [ ! -f "$STEAMROOT/.switchdeck-initial-launch" ]; then
 	log "creating initial symlinks"

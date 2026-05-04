@@ -4,24 +4,27 @@
 
 ## Installation
 1. Download and run `install-steam.sh` in your **terminal**.
-2. Download [Proton-CachyOS x86_64](https://github.com/CachyOS/proton-cachyos/releases) (recommended [build](https://github.com/CachyOS/proton-cachyos/releases/tag/cachyos-10.0-20260424-slr)) and unpack it into:  
-   `~/.local/share/Steam/compatibilitytools.d/`
-3. Restart Steam, go to **Settings** -> **Compatibility**, and select **Proton-CachyOS**.
-4. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
+2. In steam go to **Settings** -> **Library** and turn on: Low Bandwidth, Low Performance and Disable Community Content.
+3. Go to **Settings -> **Compatibility** and select either Proton 10, 11 or Experimental. You can also download them manually in your library.
+4. Restart Steam to apply the [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek) patch to your Proton version. It's applied on launch.
+5. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
+**Note:** If Steam updates your Proton version you have to relaunch it to reapply the DXVK-Sarek patch.
 
-**Note:** `update-switch.sh` can be used to update all switchdeck scripts and parts of the steam client.
-`launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched:
-Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d` folder into your Proton folder.
+---
+
+## Requirements
+* [Linux for Switch](https://wiki.switchroot.org/wiki/linux)
+* [Box64](https://github.com/ptitseb/box64) to run games. Shipped with fedora 42 by default, install from this [repo](https://github.com/ryanfortner/box64-debs) for ubuntu.
 
 ---
 
 ## Information
-*  You **must** install [box64](https://github.com/ptitseb/box64) to run games.
-*  [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases) is recommended because it comes bundled with [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek) and the Switch only supports Vulkan 1.2.
-*  `launch-steam.sh` contains several launch commands at the top. Feel free to tweak them to fit your needs.
-*  `launch-steamRT3.sh` is optional because some games may not boot correctly inside the runtime container.
-*  `wineesync` is force-disabled in `launch-steam.sh` because it causes crashes with dxvk / vulkan.
-*   If a game crashes on launch or has broken graphics (mostly 32 bit games) use opengl instead: `PROTON_USE_WINED3D=1 %command%`.
+* [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases) can be used instead of Valve-Proton, it comes with [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek)
+* `update-switch.sh` can be used to update all switchdeck scripts and parts of the steam client.
+* `launch-steam.sh` contains several launch commands. Feel free to tweak them to fit your needs. Changing `STEAMDECK_MODE="false"` to `true` at the top enables steamdeck / big picture mode.
+* `wineesync` is force-disabled in `launch-steam.sh` because it causes crashes with dxvk / vulkan.
+* If a game crashes on launch or has broken graphics (mostly 32 bit games) use opengl instead: `PROTON_USE_WINED3D=1 %command%`.
+* `launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched: Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d` folder into your Proton folder.
 
 ---
 
@@ -38,4 +41,3 @@ The L4T kernel 4.9 is too old to use FEX-Emu, instead this script sets up an x86
 The bash scripts (`launch-steam.sh`, `launch-steamRT3.sh`, etc.) in this repository are provided under the **MIT License**.
 The Steam binaries, libraries, and resources located in `/files/downgrade/` are the proprietary property of **Valve Corporation**. These files are **NOT** covered by any open-source license and are subject to the [Steam Subscriber Agreement (SSA)](https://store.steampowered.com/subscriber_agreement).
 This project is **not** affiliated with, maintained by, or endorsed by Valve Corporation. It is provided "as-is" for the sole purpose of maintaining ARM64 compatibility for the Nintendo Switch (L4T) community.
-
