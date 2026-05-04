@@ -9,6 +9,17 @@ exit_on_error() {
     exit 1
 }
 
+# Check for terminal
+if [ ! -t 0 ]; then
+    if command -v konsole >/dev/null 2>&1; then
+        exec konsole -e "$0" "$@"
+    elif command -v gnome-terminal >/dev/null 2>&1; then
+        exec gnome-terminal -- "$0" "$@"
+    elif command -v xterm >/dev/null 2>&1; then
+        exec xterm -e "$0" "$@"
+    fi
+fi
+
 # Setup
 STEAMROOT="$HOME/.local/share/Steam"
 STEAMHOME="$HOME/.steam"
@@ -47,6 +58,7 @@ if [ ! -x "$RTARM64ROOT" ]; then
 	echo "Downloading steam bootstrap.."
 	mkdir -p "$STEAMROOT/package"
 	echo "publicbeta" > "$STEAMROOT/package/beta"
+    chmod 444 "$STEAMROOT/package/beta"
 	wget -c -t 5 -O "$STEAMROOT/linuxarm64.zip" "https://client-update.steamstatic.com/bins_linuxarm64_linuxarm64.zip.f523fa87fc6b9b5435a5e7370cb0d664ef53b50b" || exit_on_error "steam bootstrap download failed (check your internet connection)"
 	unzip -d "$STEAMROOT" "$STEAMROOT/linuxarm64.zip" "steamrtarm64/steam"
 	chmod +x "$RTARM64ROOT/steam"
@@ -67,6 +79,18 @@ if [ ! -d "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper" ]; then
 	wget -c -t 5 -O "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" "https://repo.steampowered.com/steamrt3/images/latest-container-runtime-public-beta/SteamLinuxRuntime_sniper.tar.xz" || exit_on_error "sniper_x86-64 runtime download failed (check your internet connection)"
 	tar -xvf "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz" --directory "$STEAMROOT/compatibilitytools.d"
     rm -rf "$STEAMROOT/compatibilitytools.d/SteamLinuxRuntime_sniper.tar.xz"
+fi
+
+# Fix controller permissions
+if [ ! -w /dev/uinput ]; then
+    echo "Configuring controller permissions..(Requires sudo)"
+    sudo sh -c "mkdir -p /etc/udev/rules.d && echo 'KERNEL==\"uinput\", SUBSYSTEM==\"misc\", TAG+=\"uaccess\", OPTIONS+=\"static_node=uinput\"' > /etc/udev/rules.d/70-uinput.rules"
+    sudo modprobe uinput || true
+    
+    # Apply changes immediately
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger --sysname-match=uinput
+    echo "Controller permissions applied successfully."
 fi
 
 if [ -x "$RTARM64ROOT/steam" ]; then
