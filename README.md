@@ -4,10 +4,11 @@
 
 ## Installation
 1. Download and run `install-steam.sh` in your **terminal**.
-2. In steam go to **Settings** -> **Library** and turn on: Low Bandwidth, Low Performance and Disable Community Content.
-3. Go to **Settings -> **Compatibility** and select either Proton 10, 11 or Experimental. You can also download them manually in your library.
+2. In Steam go to **Settings** -> **Library** and turn on: Low Bandwidth, Low Performance and Disable Community Content.
+3. Go to **Settings** -> **Compatibility** and select either Proton 10, 11 or Experimental. You can also download them manually in your library.
 4. Restart Steam to apply the [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek) patch to your Proton version. It's applied on launch.
 5. To launch Steam, use `launch-steam.sh` in your Steam folder or use the provided shortcuts.
+
 **Note:** If Steam updates your Proton version you have to relaunch it to reapply the DXVK-Sarek patch.
 
 ---
