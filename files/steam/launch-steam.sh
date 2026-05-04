@@ -15,7 +15,6 @@
 ########################################################################################################################################
 
 # Proton-CachyOS:
-export PROTON_USE_SDL=1                 # Fix for controller issues with joycons
 export PROTON_USE_WOW64=1               # Use wow64 mode
 export PROTON_DXVK_SAREK=1              # Use the dxvk-sarek fork as DXVK replacement for older GPUs that don't support Vulkan 1.3 (supports Vulkan 1.1+)
 
