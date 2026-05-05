@@ -1,5 +1,12 @@
 # Switchdeck: Steam ARM64 for Switch (L4T)
 
+<img src="https://i.imgur.com/h0VFbgW.png" width="100%" alt="Steam Deck UI">
+
+<div align="center">
+  <img src="https://i.imgur.com/zaBCMSh.png" width="49%" alt="In-Game">
+  <img src="https://i.imgur.com/b5L16Dc.png" width="49%" alt="Settings">
+</div>
+
 ---
 
 ## Installation
@@ -25,6 +32,7 @@
 * `launch-steam.sh` contains several launch commands. Feel free to tweak them to fit your needs. Changing `STEAMDECK_MODE="false"` to `true` at the top enables steamdeck / big picture mode.
 * `wineesync` is force-disabled in `launch-steam.sh` because it causes crashes with dxvk / vulkan.
 * If a game crashes on launch or has broken graphics (mostly 32 bit games) use opengl instead: `PROTON_USE_WINED3D=1 %command%`.
+* For older games, you may need to force Proton 10+ in the settings, as Steam often defaults to unsupported older versions.
 * `launch-steamRT3.sh` can be used to run Steam in a container (RT3 Beta). For this to work, your Proton installation must be patched: Copy `runtime-helper.sh` and `toolmanifest.vdf` from your `compatibilitytools.d` folder into your Proton folder.
 
 ---
@@ -34,7 +42,16 @@ This script downloads and installs the latest Steam ARM64 version.
 Builds newer than April 15th, 2026, do not work on the Nintendo Switch, so this script will automatically downgrade parts of the client to that version to prevent "illegal instruction" crashes.
 The L4T kernel 4.9 is too old to use FEX-Emu, instead this script sets up an x86_64 runtime container (SteamRT3) to use with Proton x86_64 and box64.
 
-*Credits to Ivy for the original steam-arm64 script*
+*Credits to Ivy for the original steam-arm64 download script*
+
+---
+
+## Community & Support
+
+* **[My Discord](https://discord.gg/EbsAecrVXg)** – My Discord for all my mods and projects.
+* **[Twitter](https://x.com/SildurFX)** – Updates, clips, and general progress.
+* **[Switchroot Discord](https://discord.gg/53mtKYt)** – For general L4T Linux help.
+* **[Patreon](https://www.patreon.com/Sildur)** / **[PayPal](https://www.paypal.com/donate?token=_2027BoQI-5DqpHvI-Du7HX8MHdXJ5_vQ05_Owto9XiM8x3j76yxS1nevrBbpn5UV2yJfymQNmTsMPw6&locale.x=US)** – If you'd like to support my work!
 
 ---
 
