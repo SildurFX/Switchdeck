@@ -22,7 +22,7 @@
 ---
 
 ## Requirements
-* [Linux for Switch:](https://wiki.switchroot.org/wiki/linux) Kubuntu Noble or Fedora 42. (Fedora currently has some WIP changes that may be unstable.)
+* [Linux for Switch:](https://wiki.switchroot.org/wiki/linux) Kubuntu Noble or Fedora 42. **Make sure to install all the latest system updates.** (Fedora 42 is currently unstable on some systems)
 * [Box64](https://github.com/ptitseb/box64) to run games. Shipped with Fedora 42 by default. Switchdeck installs it for you on Ubuntu.
 * **Vulkan 1.2 Support:** Fedora ships with the latest GPU driver. Switchdeck updates it for you on Ubuntu.
 * [RAM OC:](https://wiki.switchroot.org/wiki/linux/linux-features#ram_oc0) Nintendo Switch has 4GB shared between CPU and GPU so overclocking RAM helps a lot.
@@ -46,7 +46,7 @@
 * Several launch commands are defined in `launch-steam.sh`. Feel free to tweak them to fit your needs. Changing `STEAMDECK_MODE="false"` to `true` at the top enables steamdeck / big picture mode.
 * `wineesync` causes crashes with DXVK and is disabled in `launch-steam.sh`.
 * [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases), [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom) and [Luxtorpeda](https://luxtorpeda.org/) are supported. Some games may only work with [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom).
-* [ProtonPlus](https://github.com/Vysp3r/ProtonPlus) can be used to install custom Proton versions. You can download and install the latest aarch64 release [here](https://github.com/Vysp3r/ProtonPlus/actions/workflows/main.yml). Only x86_64 Proton is supported, don't use aarch64/arm64 versions of Proton.
+* [ProtonPlus](https://github.com/Vysp3r/ProtonPlus) can be used to install custom Proton versions. You can download and install an older arm64 release [here](https://github.com/SildurFX/Switchdeck-Extras/releases/download/Proton-11.0-1-Armv8.0/protonplus-aarch64-0.6.0-20260728.flatpak.zip). Only x86_64 Proton is supported, don't use aarch64/arm64 versions of Proton. We use an older version of ProtonPlus because the latest release no longer allows you to select x86_64 or arm64 builds.
 * FEX currently does not support 32-bit games because of severe graphical bugs. Use non-FEX Proton versions like Experimental for 32-bit games.
 
 ---
