@@ -46,7 +46,7 @@
 * Several launch commands are defined in `launch-steam.sh`. Feel free to tweak them to fit your needs. Changing `STEAMDECK_MODE="false"` to `true` at the top enables steamdeck / big picture mode.
 * `wineesync` causes crashes with DXVK and is disabled in `launch-steam.sh`.
 * [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases), [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom) and [Luxtorpeda](https://luxtorpeda.org/) are supported. Some games may only work with [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom).
-* [ProtonPlus](https://github.com/Vysp3r/ProtonPlus) can be used to install custom Proton versions. You can download and install an older arm64 release [here](https://github.com/SildurFX/Switchdeck-Extras/releases/download/Proton-11.0-1-Armv8.0/protonplus-aarch64-0.6.0-20260728.flatpak.zip). Only x86_64 Proton is supported, don't use aarch64/arm64 versions of Proton. We use an older version of ProtonPlus because the latest release no longer allows you to select x86_64 or arm64 builds.
+* [ProtonPlus](https://github.com/Vysp3r/ProtonPlus) can be used to install custom Proton versions. Download and run the aarch64 appimage [here](https://github.com/SildurFX/ProtonPlus/releases/download/v0.6.1-1/ProtonPlus-0.6.1-anylinux-aarch64.AppImage).
 * FEX currently does not support 32-bit games because of severe graphical bugs. Use non-FEX Proton versions like Experimental for 32-bit games.
 
 ---
