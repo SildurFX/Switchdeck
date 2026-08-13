@@ -63,7 +63,7 @@ This script automates the download and installation of Steam ARM64. Because Stea
 * **[My Discord](https://discord.gg/EbsAecrVXg)** – My Discord for all my mods and projects.
 * **[Twitter](https://x.com/SildurFX)** – Updates, clips, and general progress.
 * **[Switchroot Discord](https://discord.gg/53mtKYt)** – For general L4T Linux help.
-* **[Patreon](https://www.patreon.com/Sildur)** / **[PayPal](https://www.paypal.com/donate?token=_2027BoQI-5DqpHvI-Du7HX8MHdXJ5_vQ05_Owto9XiM8x3j76yxS1nevrBbpn5UV2yJfymQNmTsMPw6&locale.x=US)** – If you'd like to support my work!
+* **[Patreon](https://www.patreon.com/Sildur)** / **[PayPal](https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=KY99R4D8YUEX2&source=url&ssrt=1786589479049)** – If you'd like to support my work!
 
 ---
 
