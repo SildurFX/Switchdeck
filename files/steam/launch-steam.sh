@@ -163,15 +163,16 @@ if [ -d "$DX_SRC" ] && [ -d "$VK_SRC" ]; then
         DX_CHECK="$p/lib/wine/dxvk/x86_64-windows/d3d11.dll"
         VK_CHECK="$p/lib/wine/vkd3d-proton/x86_64-windows/d3d12.dll"
 
-        if [ ! -L "$DX_CHECK" ] || [ ! -L "$VK_CHECK" ]; then
+        # Check if symlink target is missing/broken
+        if [ ! -e "$DX_CHECK" ] || [ ! -e "$VK_CHECK" ] || [ ! -L "$DX_CHECK" ] || [ ! -L "$VK_CHECK" ]; then
             log "Patching: $(basename "$p_dir")"
             
             # DXVK
             DX64="$p/lib/wine/dxvk/x86_64-windows"
             DX32="$p/lib/wine/dxvk/i386-windows"
             mkdir -p "$DX64" "$DX32"
-            for f in "$DX_SRC/x64"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX64/${f##*/}"; done
-            for f in "$DX_SRC/x32"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX32/${f##*/}"; done
+            for f in "$DX_SRC/build/x64"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX64/${f##*/}"; done
+            for f in "$DX_SRC/build/x32"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX32/${f##*/}"; done
             
             # VKD3D
             VK64="$p/lib/wine/vkd3d-proton/x86_64-windows"
