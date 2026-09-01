@@ -13,9 +13,10 @@
 1. Download and run `install-steam.sh` in your **terminal**.
 2. Use the shortcut or `launch-steam.sh` in your Steam folder to launch Steam. On first launch a popup will appear and install steam runtime 4.0 arm64.
 3. In Steam go to **Settings** -> **Library** and turn on: Low Bandwidth, Low Performance and Disable Community Content.
-4. Go to **Settings** -> **Compatibility** and select Proton Experimental or Proton 11.0-1 Armv8.0 (FEX). **FEX does not support 32-bit games** because of severe graphical bugs.
-5. Go to **Settings** -> **Controller:** -> **Show Advanced Settings:** Enable "Combine Joycon Pairs" and Enable Steam Input for Pro and Generic Controller. ([Capture Button](https://wiki.switchroot.org/wiki/~gitbook/image?url=https%3A%2F%2F1282083284-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F5A2PNyzG80QTDoltbtvZ%252Fuploads%252Fgit-blob-3f3536275b42d0474793e7cf4be05e666d5c8394%252Fjoycon_mapping.png%3Falt%3Dmedia&width=768&dpr=3&quality=100&sign=2c313375&sv=2) below D-Pad switches from Desktop Mode to Controller)
-6. Restart Steam to apply the [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek), [VKD3D](https://github.com/HansKristian-Work/vkd3d-proton/releases/tag/v2.3.1) and Vertex Explosion patch to Proton.
+4. Go to **Settings** -> **Interface** and turn off Notify me about additions or changes to my games, new releases, and upcoming releases; and change Start Up Location to Library.
+5. Go to **Settings** -> **Compatibility** and select Proton Experimental or Proton 11.0-1 Armv8.0 (FEX). **FEX does not support 32-bit games** because of severe graphical bugs.
+6. Go to **Settings** -> **Controller:** -> **Show Advanced Settings:** Enable "Combine Joycon Pairs" and Enable Steam Input for Pro and Generic Controller. ([Capture Button](https://wiki.switchroot.org/wiki/~gitbook/image?url=https%3A%2F%2F1282083284-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F5A2PNyzG80QTDoltbtvZ%252Fuploads%252Fgit-blob-3f3536275b42d0474793e7cf4be05e666d5c8394%252Fjoycon_mapping.png%3Falt%3Dmedia&width=768&dpr=3&quality=100&sign=2c313375&sv=2) below D-Pad switches from Desktop Mode to Controller)
+7. Restart Steam to apply the [DXVK-Sarek](https://github.com/pythonlover02/DXVK-Sarek), [VKD3D](https://github.com/HansKristian-Work/vkd3d-proton/releases/tag/v2.3.1) and Vertex Explosion patch to Proton.
 
 **Note:** If Steam updates your Proton version you have to relaunch it to reapply the [DXVK-Sarek,](https://github.com/pythonlover02/DXVK-Sarek) [VKD3D](https://github.com/HansKristian-Work/vkd3d-proton/releases/tag/v2.3.1) and Vertex Explosion patch. It's applied on launch.
 
