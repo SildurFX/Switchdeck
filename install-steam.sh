@@ -191,18 +191,18 @@ if [ ! -d "$STEAMROOT/Switchdeck/VKD3D" ]; then
     printf "\nVKD3D installed successfully in Switchdeck/VKD3D.\n"
 fi
 
-if [ ! -d "$STEAMROOT/compatibilitytools.d/Proton 11.0-1 Armv8.0 (FEX)" ]; then
-    printf "\nDownloading Proton 11.0-1 Armv8.0 (FEX)..\n"
+if [ ! -d "$STEAMROOT/compatibilitytools.d/Proton 11.0-2e Armv8.0 (FEX)" ]; then
+    printf "\nDownloading Proton 11.0-2e Armv8.0 (FEX)..\n"
     mkdir -p "$STEAMROOT/compatibilitytools.d"
 
-    if wget -q --show-progress -c -t 5 -O "$STEAMROOT/compatibilitytools.d/Proton.11.0-1.Armv8.0.FEX.tar.gz" "https://github.com/SildurFX/Switchdeck-Extras/releases/download/Proton-11.0-1-Armv8.0/Proton.11.0-1.Armv8.0.FEX.tar.gz"; then
+    if wget -q --show-progress -c -t 5 -O "$STEAMROOT/compatibilitytools.d/Proton.11.0-2e.Armv8.0.FEX.tar.gz" "https://github.com/SildurFX/Switchdeck-Extras/releases/download/Proton-11.0-2e-Armv8.0/Proton.11.0-2e.Armv8.0.FEX.tar.gz"; then
         printf "\nExtracting files (this may take a moment)..\n"
-        tar -xzf "$STEAMROOT/compatibilitytools.d/Proton.11.0-1.Armv8.0.FEX.tar.gz" --directory "$STEAMROOT/compatibilitytools.d"
-        rm -f "$STEAMROOT/compatibilitytools.d/Proton.11.0-1.Armv8.0.FEX.tar.gz"
-        touch "$STEAMROOT/Switchdeck/.fex_update"
-        printf "\nProton 11.0-1 Armv8.0 (FEX) successfully installed.\n"
+        tar -xzf "$STEAMROOT/compatibilitytools.d/Proton.11.0-2e.Armv8.0.FEX.tar.gz" --directory "$STEAMROOT/compatibilitytools.d"
+        rm -f "$STEAMROOT/compatibilitytools.d/Proton.11.0-2e.Armv8.0.FEX.tar.gz"
+        touch "$STEAMROOT/Switchdeck/.fex_update2"
+        printf "\nProton 11.0-2e Armv8.0 (FEX) successfully installed.\n"
     else
-        printf "\nError: Failed to download Proton 11.0-1 Armv8.0 (FEX).\n"
+        printf "\nError: Failed to download Proton 11.0-2e Armv8.0 (FEX).\n"
         exit 1
     fi
 fi
