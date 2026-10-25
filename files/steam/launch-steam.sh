@@ -33,7 +33,7 @@ export PROTON_DXVK_SAREK=1              # Use the dxvk-sarek fork as DXVK replac
 # Wine:
 export WINEESYNC=0                      # Supported but crashes dxvk and only works with wined3d
 export PROTON_NO_ESYNC=1                # set WINEESYNC=1 and PROTON_NO_ESYNC=0 to enable esync
-export PROTON_NO_FSYNC=1                # requires Kernel 5.x+
+export PROTON_NO_FSYNC=0                # the L4S kernel backports futex_waitv (sys 449), so fsync works on the 4.9 kernel
 export PROTON_NO_NTSYNC=1               # requires Kernel 6.12+
 export STAGING_WRITECOPY=1              # Uses copy-on-write for shared memory to improve stability and prevent corruption
 export STAGING_SHARED_MEMORY=1          # Enables shared memory segments to reduce overhead and improve startup times
