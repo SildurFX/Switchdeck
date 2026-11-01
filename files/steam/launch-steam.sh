@@ -16,7 +16,7 @@
 # DXVK:	  https://github.com/pythonlover02/DXVK-Sarek/blob/main/dxvk.conf
 # Box64:  https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md
 #
-# Steam games can be launched with: SWITCHDECK_GAMEMODE=1 or 2 %command% to free up 1GB+ of RAM.
+# Steam games can be launched with: SD_GAMEMODE=1 or 2 %command% to free up 1GB+ of RAM.
 # Mode 1: Unloads steamwebhelper on game launch and restores it on game exit.
 # Mode 2 (Aggressive): Also stops KDE Plasma & background services, including internet.
 ########################################################################################################################################
@@ -25,6 +25,13 @@
 UPDATE_CHECK="true"                     # Toggle switchdeck update check on launch.
 ENABLE_GAMEMODE="true"                  # Toggle switchdeck gamemode.
 STEAMDECK_MODE="false"                  # Toggle steamdeck / big picture mode for steam.
+
+# LSE-Emulator:
+export LSE_EMU=1                        # Toggle LSE Emulator.
+export LSE_EMU_PATCH=1                  # Enable lazy patching to native stubs for better performance. Without it, every LSE instruction traps.
+# export LSE_EMU_STATS=1                # If set to any value, print traps, patched and failed counters to stderr at exit.
+# export LSE_EMU_SKIP=a:b               # Colon-separated names. Patching is disabled in any process whose executable path contains one of them. Emulation still works.
+# export LSE_EMU_LOG=1 or "=/path"      # Write a log (see [Debugging](#debugging)) to "/tmp/lse_emu.log", or to the given path.
 
 # Proton:
 export PROTON_USE_WOW64=1               # Use wow64 mode
@@ -152,6 +159,7 @@ C0="$STEAMROOT/steamapps/compatdata/0"
 [[ -d "$C0" && ! -L "$C0" ]] && rm -rf "$C0"
 [[ ! -e "$C0" ]] && ln -s /dev/null "$C0"
 
+# TODO: Adjust for arm64 and build arm64ec version.
 # Patch both Native and GE-Proton with DXVK-Sarek and VKD3D v2.3.1
 DX_SRC="$SWITCHDECK_DIR/DXVK"
 VK_SRC="$SWITCHDECK_DIR/VKD3D"
@@ -187,54 +195,6 @@ else
     log "Source folders missing. Run update-switchdeck.sh"
 fi
 
-# Patch out extension VK_EXT_external_memory_host in Proton 10 to fix vertex explosions in 32-bit games:
-find "$STEAMROOT/steamapps/common" "$STEAMROOT/compatibilitytools.d" -maxdepth 1 \( -name "Proton 10*" -o -name "GE-Proton10*" \) 2>/dev/null | while read -r p_dir; do
-    p="$p_dir/files"
-    [ -d "$p" ] || continue
-    LIB32="$p/lib/wine/i386-unix/winevulkan.so"
-    LIB64="$p/lib/wine/x86_64-unix/winevulkan.so"
-    PATCHED_ANY=false
-    if [ -f "$LIB32" ]; then
-        if strings "$LIB32" | grep -a "VK_EXT_external_memory_host" >/dev/null; then
-            sed -i 's/VK_EXT_external_memory_host/VK_EXT_external_memory_Xost/g' "$LIB32"
-            PATCHED_ANY=true
-        fi
-    fi
-    if [ -f "$LIB64" ]; then
-        if strings "$LIB64" | grep -a "VK_EXT_external_memory_host" >/dev/null; then
-            sed -i 's/VK_EXT_external_memory_host/VK_EXT_external_memory_Xost/g' "$LIB64"
-            PATCHED_ANY=true
-        fi
-    fi
-    if [ "$PATCHED_ANY" = true ]; then
-        log "Applied 32-bit patch to: $(basename "$p_dir")"
-    fi
-done
-
-# Patch out extension VK_EXT_external_memory_host in Proton 11 / GE-Proton11 / Experimental / Hotfix to fix vertex explosions in 32-bit games:
-find "$STEAMROOT/steamapps/common" "$STEAMROOT/compatibilitytools.d" -maxdepth 1 \( -name "Proton 11*" -o -name "GE-Proton11*" -o -name "Proton - Experimental" -o -name "Proton Hotfix" \) 2>/dev/null | while read -r p_dir; do
-    p="$p_dir/files"
-    [ -d "$p" ] || continue
-    LIB32="$p/lib/wine/i386-unix/win32u.so"
-    LIB64="$p/lib/wine/x86_64-unix/win32u.so"
-    PATCHED_ANY=false
-    if [ -f "$LIB32" ]; then
-         if strings "$LIB32" | grep -a "VK_EXT_external_memory_host" >/dev/null; then
-            sed -i 's/VK_EXT_external_memory_host/VK_EXT_external_memory_Xost/g' "$LIB32"
-            PATCHED_ANY=true
-         fi
-    fi
-    if [ -f "$LIB64" ]; then
-         if strings "$LIB64" | grep -a "VK_EXT_external_memory_host" >/dev/null; then
-            sed -i 's/VK_EXT_external_memory_host/VK_EXT_external_memory_Xost/g' "$LIB64"
-            PATCHED_ANY=true
-         fi
-    fi
-    if [ "$PATCHED_ANY" = true ]; then
-        log "Applied winevulkan patch to: $(basename "$p_dir")"
-    fi
-done
-
 # Switchdeck Gamemode
 if [ "$ENABLE_GAMEMODE" = "true" ]; then
     # Preparation & Crash Recovery
@@ -255,7 +215,7 @@ if [ "$ENABLE_GAMEMODE" = "true" ]; then
         # Scan /proc to find active gamemode PID
         find_gamemode_pid() {
             for p in /proc/[0-9]*; do
-                [ -r "$p/environ" ] && grep -zqE "^(SWITCHDECK_GAMEMODE|SD_GAMEMODE)=" "$p/environ" 2>/dev/null && echo "${p##*/}" && return 0
+                [ -r "$p/environ" ] && grep -zq "^SD_GAMEMODE=" "$p/environ" 2>/dev/null && echo "${p##*/}" && return 0
             done
             return 1
         }
@@ -285,7 +245,7 @@ if [ "$ENABLE_GAMEMODE" = "true" ]; then
                 [ -z "$GAME_PID" ] && { sleep 15; continue; }
                 
                 # Detect mode 1 or 2 from application context
-                grep -zqE "^(SWITCHDECK_GAMEMODE|SD_GAMEMODE)=2" "/proc/$GAME_PID/environ" 2>/dev/null && FLAG=2 || FLAG=1
+                grep -zq "^SD_GAMEMODE=2" "/proc/$GAME_PID/environ" 2>/dev/null && FLAG=2 || FLAG=1
 
                 # Setup SD_SWAP AND SD_ZRAM
                 RUN_ZRAM=0

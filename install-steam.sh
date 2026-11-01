@@ -139,7 +139,17 @@ if [ ! -x "$RTARM64ROOT" ]; then
     rm -f "$STEAMROOT/package/beta"
     echo "publicbeta" > "$STEAMROOT/package/beta"
     chmod 444 "$STEAMROOT/package/beta"
-	wget -q --show-progress -c -t 5 -O "$STEAMROOT/linuxarm64.zip" "https://client-update.steamstatic.com/bins_linuxarm64_linuxarm64.zip.f523fa87fc6b9b5435a5e7370cb0d664ef53b50b" || exit_on_error "steam bootstrap download failed (check your internet connection)"
+
+    LATEST_MANIFEST=$(wget -qO- "https://client-update.steamstatic.com/steam_client_publicbeta_linuxarm64")
+    LATEST_FILENAME=$(echo "$LATEST_MANIFEST" | sed -n 's/.*"file"[[:space:]]*"[[:space:]]*\(bins_linuxarm64_linuxarm64\.zip\.[^"]*\)".*/\1/p' | head -1)
+
+    if [ -z "$LATEST_FILENAME" ]; then
+        LATEST_FILENAME="bins_linuxarm64_linuxarm64.zip.f523fa87fc6b9b5435a5e7370cb0d664ef53b50b"
+    fi
+
+    LATEST_URL="https://client-update.steamstatic.com/${LATEST_FILENAME}"
+    wget -q --show-progress -c -t 5 -O "$STEAMROOT/linuxarm64.zip" "$LATEST_URL" || exit_on_error "steam bootstrap download failed (check your internet connection)"
+
     unzip -d "$STEAMROOT" "$STEAMROOT/linuxarm64.zip" "steamrtarm64/steam"
     chmod +x "$RTARM64ROOT/steam"
     rm -rf "$STEAMROOT/linuxarm64.zip"
@@ -207,7 +217,7 @@ if [ ! -d "$STEAMROOT/compatibilitytools.d/Proton 11.0-2e Armv8.0 (FEX)" ]; then
     fi
 fi
 
-# Fix controller permissions
+# Setup controller permissions
 CONTROLLER_RELOAD=0
 if command -v apt-get &>/dev/null; then
     dpkg -s steam-devices &>/dev/null || { 
@@ -259,48 +269,38 @@ EOF
 fi
 
 if [ -x "$RTARM64ROOT/steam" ]; then
+
+    printf "\nInstalling LSE-Emulator (Requires sudo)..\n"
+    LATEST_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/LSE-Emu/releases/latest")
+    LSE_URL=$(echo "$LATEST_JSON" | sed -n 's/.*"browser_download_url": "\([^"]*\)".*/\1/p' | head -1)
+    LSE_TAG=$(echo "$LATEST_JSON" | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p' | head -1)
+    
+    # protection fallback
+    [ -z "$LSE_URL" ] && { printf "\nError: GitHub API URL empty. Aborting installation.\n"; exit 1; }
+
+    wget -q --show-progress -c -t 5 -O "$STEAMROOT/Switchdeck/liblse_emu.so" "$LSE_URL"
+
+    sudo install -m 755 "$STEAMROOT/Switchdeck/liblse_emu.so" /usr/local/lib/liblse_emu.so
+    
+    if [ ! -f /etc/ld.so.preload ] || ! grep -qFx "/usr/local/lib/liblse_emu.so" /etc/ld.so.preload; then
+        echo "/usr/local/lib/liblse_emu.so" | sudo tee -a /etc/ld.so.preload > /dev/null
+    fi
+    sudo ldconfig
+
+    # Save version tag so the update script knows what's installed
+    echo "$LSE_TAG" > "$STEAMROOT/Switchdeck/LSE-Emu_version.txt"
+    export LSE_EMU=1
+    export LSE_EMU_PATCH=1
+    printf "\nLSE-Emulator installed successfully.\n"
+
+    # Setup launcher and updater:
+    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/launch-steam.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/launch-steam.sh?ref=armv8.0-LSE"
+    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/update-switchdeck.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/update-switchdeck.sh?ref=armv8.0-LSE"
+
     printf "\nStarting Steam (Initial Update phase)..\n"
     export LD_LIBRARY_PATH="$RTARM64ROOT:${LD_LIBRARY_PATH-}"
     "$RTARM64ROOT/steam" "$@" || true
     
-    printf "\nSteam exited. Downloading files to downgrade steam..\n"
-
-    # temp dir for extraction
-    TEMP_SD="$STEAMROOT/temp_sd"
-    mkdir -p "$TEMP_SD"
-
-	wget -q -t 5 -O- "https://github.com/SildurFX/Switchdeck/archive/refs/heads/main.tar.gz" | tar xz -C "$TEMP_SD" --strip-components=1 || exit_on_error "Failed to download/extract downgrade files"
-
-    if [ -f "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" ]; then
-        mkdir -p "$STEAMROOT/linuxarm64"
-        tar -xzf "$TEMP_SD/files/downgrade/linuxarm64.tar.gz" -C "$STEAMROOT/linuxarm64"
-    fi
-
-    if [ -f "$TEMP_SD/files/downgrade/linux_x86_64.zip" ]; then
-        unzip -q -o "$TEMP_SD/files/downgrade/linux_x86_64.zip" -d "$STEAMROOT"
-    fi
-
-    if [ -f "$TEMP_SD/files/downgrade/steamui_websrc_all.zip" ]; then
-        # Extract only the main folder entry
-        unzip -q -o "$TEMP_SD/files/downgrade/steamui_websrc_all.zip" "steamui/*" -d "$STEAMROOT"
-    fi
-    
-    # Reassemble and extract steamrtarm64
-    if [ -f "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.partaa" ]; then
-        mkdir -p "$STEAMROOT/steamrtarm64"
-        cat "$TEMP_SD/files/downgrade/steamrtarm64.tar.gz.part"* > "$TEMP_SD/steamrtarm64.tar.gz"
-        tar -xzf "$TEMP_SD/steamrtarm64.tar.gz" -C "$STEAMROOT/steamrtarm64"
-        rm -f "$TEMP_SD/steamrtarm64.tar.gz"
-    fi
-
-    # move files and scripts
-    cp -f  "$TEMP_SD/files/downgrade/steam.cfg" "$STEAMROOT/steam.cfg"
-    cp -f  "$TEMP_SD/files/steam/launch-steam.sh" "$STEAMROOT/"
-    cp -f  "$TEMP_SD/files/steam/update-switchdeck.sh" "$STEAMROOT/"
-
-    # Cleanup
-    rm -rf "$TEMP_SD"
-
     # Overkill but make sure everything is executable
 	chmod -R +x "$STEAMROOT"
 

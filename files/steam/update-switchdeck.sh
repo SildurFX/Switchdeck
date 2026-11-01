@@ -15,20 +15,20 @@ SWITCHDECK_DIR="$HOME/.local/share/Steam/Switchdeck"
 # Check for Switchdeck updates
 LAUNCH_SHA_FILE="$SWITCHDECK_DIR/launch-steam.sha"
 UPDATE_SHA_FILE="$SWITCHDECK_DIR/update-switchdeck.sha"
-LAUNCH_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/launch-steam.sh?ref=main")
-UPDATE_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/update-switchdeck.sh?ref=main")
+LAUNCH_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/launch-steam.sh?ref=armv8.0-LSE")
+UPDATE_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/update-switchdeck.sh?ref=armv8.0-LSE")
 LATEST_LAUNCH_SHA=$(echo "$LAUNCH_JSON" | sed -n 's/.*"sha": "\([^"]*\)".*/\1/p' | head -n 1)
 LATEST_UPDATE_SHA=$(echo "$UPDATE_JSON" | sed -n 's/.*"sha": "\([^"]*\)".*/\1/p' | head -n 1)
 
 if [ "$LATEST_LAUNCH_SHA" != "$(cat "$LAUNCH_SHA_FILE" 2>/dev/null)" ] || [ ! -f "$STEAMROOT/launch-steam.sh" ]; then
-    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/launch-steam.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/launch-steam.sh?ref=main"
+    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/launch-steam.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/launch-steam.sh?ref=armv8.0-LSE"
     echo "$LATEST_LAUNCH_SHA" > "$LAUNCH_SHA_FILE"
     echo "Updating launch script... You may have to restart Steam to fully apply the update."
     touch "$SWITCHDECK_DIR/.needs_restart"
     sleep 2
 fi
 if [ "$LATEST_UPDATE_SHA" != "$(cat "$UPDATE_SHA_FILE" 2>/dev/null)" ] || [ ! -f "$STEAMROOT/update-switchdeck.sh" ]; then
-    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/update-switchdeck.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/update-switchdeck.sh?ref=main"
+    wget -q --header="Accept: application/vnd.github.v3.raw" -O "$STEAMROOT/update-switchdeck.sh" "https://api.github.com/repos/SildurFX/Switchdeck/contents/files/steam/update-switchdeck.sh?ref=armv8.0-LSE"
     echo "$LATEST_UPDATE_SHA" > "$UPDATE_SHA_FILE"
     echo "Updating update script... You may have to restart Steam to fully apply the update."
     touch "$SWITCHDECK_DIR/.needs_restart"
@@ -37,6 +37,7 @@ fi
 
 chmod +x "$STEAMROOT/launch-steam.sh" "$STEAMROOT/update-switchdeck.sh"
 
+# Todo: Replace with arm64ec builds
 # Check for DXVK-Sarek update
 DX_DIR="$SWITCHDECK_DIR/DXVK"
 VERSION_FILE="$SWITCHDECK_DIR/dxvk-sarek_version.txt"
@@ -80,10 +81,31 @@ if [ ! -d "$VK_DIR" ]; then
     echo "VKD3D added successfully."
 fi
 
-# FEX Build migration
-if [ ! -f "$SWITCHDECK_DIR/.fex_update2" ]; then
-    echo "Old FEX version detected, updating.."
-    rm -rf "$STEAMROOT/compatibilitytools.d/Proton 11.0-1 Armv8.0 (FEX)"
+EMU_DIR="$SWITCHDECK_DIR"
+VERSION_FILE="$SWITCHDECK_DIR/LSE-Emu_version.txt"
+LSE_JSON=$(wget -qO- "https://api.github.com/repos/SildurFX/LSE-Emu/releases/latest")
+LSE_TAG=$(echo "$LSE_JSON" | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p' | head -1)
+
+# Check if the version file doesn't match or the core binary is completely missing
+if [ "$LSE_TAG" != "$(cat "$VERSION_FILE" 2>/dev/null)" ] || [ ! -f "/usr/local/lib/liblse_emu.so" ]; then
+    echo "Updating LSE-Emulator to $LSE_TAG.."
+    LSE_URL=$(echo "$LSE_JSON" | sed -n 's/.*"browser_download_url": "\([^"]*\)".*/\1/p' | head -1)
+
+    # protection fallback
+    [ -z "$LSE_URL" ] && { echo "Error: GitHub API URL empty. Aborting update to protect current installation."; return 1; }
+
+    wget -q --show-progress -c -t 5 -O "$EMU_DIR/liblse_emu.so" "$LSE_URL"
+
+    sudo install -m 755 "$EMU_DIR/liblse_emu.so" /usr/local/lib/liblse_emu.so
+    sudo ldconfig
+
+    # Enforce safe entry check
+    if [ ! -f /etc/ld.so.preload ] || ! grep -qFx "/usr/local/lib/liblse_emu.so" /etc/ld.so.preload; then
+        echo "/usr/local/lib/liblse_emu.so" | sudo tee -a /etc/ld.so.preload > /dev/null
+    fi
+
+    echo "$LSE_TAG" > "$VERSION_FILE"
+    echo "LSE-Emulator updated successfully."
 fi
 
 # Check if Proton 11 Arm64 is installed
@@ -102,22 +124,4 @@ if [ ! -d "$STEAMROOT/compatibilitytools.d/Proton 11.0-2e Armv8.0 (FEX)" ]; then
         echo "Error: Failed to download Proton 11.0-2e Armv8.0 (FEX)."
         exit 1
     fi
-fi
-
-# Setup password rule for SD_SWAP and SD_ZRAM and optimize ZRAM config
-SUDOERS_FILE="/etc/sudoers.d/switchdeck"
-if [ ! -f "$SUDOERS_FILE" ]; then
-    echo "Setting up permissions for SD_SWAP and SD_ZRAM.. (Requires sudo)"
-    CURRENT_USER=$(whoami)
-    RULE_LINE="$CURRENT_USER ALL=(ALL) NOPASSWD: /usr/sbin/swapon, /usr/sbin/swapoff, /usr/sbin/zramctl, /usr/bin/dd, /usr/bin/chmod, /usr/sbin/mkswap"
-    if ! sudo sh -c "echo \"$RULE_LINE\" > \"$SUDOERS_FILE\" && chown root:root \"$SUDOERS_FILE\" && chmod 0440 \"$SUDOERS_FILE\""; then
-        echo "Failed to set up permissions for SD_SWAP and SD_ZRAM."
-    fi
-    echo "Optimizing ZRAM Config.. (Requires sudo)"
-    sudo mkdir -p /etc/sysctl.d
-    sudo tee /etc/sysctl.d/99-zram.conf << 'EOF' >/dev/null
-vm.swappiness=100
-vm.page-cluster=0
-EOF
-    sudo sysctl --system >/dev/null 2>&1
 fi
