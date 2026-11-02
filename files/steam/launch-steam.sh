@@ -324,6 +324,23 @@ if [ "$ENABLE_GAMEMODE" = "true" ]; then
     ) &
 fi
 
+# Fix steam remote play
+remoteplay_wrapper() {
+    SC="$STEAMROOT/steamrtarm64/streaming_client"
+    [ -f "$SC" ] || return 0
+    if [ "$(head -c4 "$SC" | tail -c3)" = "ELF" ]; then
+        mv -f "$SC" "$SC.bak"
+        cat << 'EOF' > "$SC.new"
+#!/bin/bash
+[ -n "$LD_LIBRARY_PATH" ] && export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | sed -E 's|[^:]*steamrtarm64[^:]*:?||g; s|:$||')
+exec box64 "$HOME/.local/share/Steam/steamrt64/streaming_client" "$@"
+EOF
+        chmod +x "$SC.new" && mv -f "$SC.new" "$SC"
+    fi
+}
+remoteplay_wrapper
+( while kill -0 $$ 2>/dev/null && ! pgrep -x steamwebhelper >/dev/null; do remoteplay_wrapper; sleep 5; done; remoteplay_wrapper ) &
+
 if [ -x "$STEAMROOT/steamrtarm64/steam" ]; then
     log "Starting Steam"
 	# Flat ARM64 -> Nested ARM64 -> Flat x64 -> Nested x64
