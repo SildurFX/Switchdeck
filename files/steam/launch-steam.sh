@@ -350,6 +350,7 @@ if [[ -d "${LIB_DIR[0]}" ]]; then
         [[ ! -f "$STREAM_DIR/$lib" ]] && cp "${LIB_DIR[0]}/$lib".* "$STREAM_DIR/$lib" 2>/dev/null
     done
 fi
+export BOX64_EMULATED_LIBS="libSDL3.so.0:libSDL3_ttf.so.0"
 exec box64 "$STREAM_DIR/streaming_client" "$@"
 EOF
         chmod +x "$SC.new" && mv -f "$SC.new" "$SC"
