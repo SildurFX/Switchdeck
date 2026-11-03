@@ -103,21 +103,3 @@ if [ ! -d "$STEAMROOT/compatibilitytools.d/Proton 11.0-2e Armv8.0 (FEX)" ]; then
         exit 1
     fi
 fi
-
-# Setup password rule for SD_SWAP and SD_ZRAM and optimize ZRAM config
-SUDOERS_FILE="/etc/sudoers.d/switchdeck"
-if [ ! -f "$SUDOERS_FILE" ]; then
-    echo "Setting up permissions for SD_SWAP and SD_ZRAM.. (Requires sudo)"
-    CURRENT_USER=$(whoami)
-    RULE_LINE="$CURRENT_USER ALL=(ALL) NOPASSWD: /usr/sbin/swapon, /usr/sbin/swapoff, /usr/sbin/zramctl, /usr/bin/dd, /usr/bin/chmod, /usr/sbin/mkswap"
-    if ! sudo sh -c "echo \"$RULE_LINE\" > \"$SUDOERS_FILE\" && chown root:root \"$SUDOERS_FILE\" && chmod 0440 \"$SUDOERS_FILE\""; then
-        echo "Failed to set up permissions for SD_SWAP and SD_ZRAM."
-    fi
-    echo "Optimizing ZRAM Config.. (Requires sudo)"
-    sudo mkdir -p /etc/sysctl.d
-    sudo tee /etc/sysctl.d/99-zram.conf << 'EOF' >/dev/null
-vm.swappiness=100
-vm.page-cluster=0
-EOF
-    sudo sysctl --system >/dev/null 2>&1
-fi
