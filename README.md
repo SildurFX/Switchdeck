@@ -22,8 +22,8 @@
 ---
 
 ## Requirements
-* [Linux for Switch:](https://wiki.switchroot.org/wiki/linux) Kubuntu Noble or Fedora 42. **Make sure to install all the latest system updates.** (Fedora 42 is currently unstable on some systems)
-* [Box64](https://github.com/ptitseb/box64) to run games. Shipped with Fedora 42 by default. Switchdeck installs it for you on Ubuntu.
+* [Linux for Switch:](https://wiki.switchroot.org/wiki/linux) Kubuntu Noble or Fedora 44. **Make sure to install all the latest system updates.**
+* [Box64](https://github.com/ptitseb/box64) to run games. Switchdeck installs it for you on Ubuntu and Fedora.
 * **Vulkan 1.2 Support:** Fedora ships with the latest GPU driver. Switchdeck updates it for you on Ubuntu.
 * [RAM OC:](https://wiki.switchroot.org/wiki/linux/linux-features#ram_oc0) Nintendo Switch has 4GB shared between CPU and GPU so overclocking RAM helps a lot.
 
@@ -44,7 +44,7 @@
 * [Game compatibility list](https://docs.google.com/spreadsheets/d/1UrLwRaIZGAL6J7l9QK_DO4MB45KzIUKIfKZIOE4hid4). Not every title is supported or fully playable.
 * Use the square [taskbar icon](https://drive.google.com/file/d/1ciiL1fqIvq2lNtDRZEdrBAeOh0wa03Ds/view?usp=sharing) to change your [OC Profile](https://wiki.switchroot.org/wiki/linux/linux-features#power-profiles-all-models). OC CPU should be enough for most games.
 * Several launch commands are defined in `launch-steam.sh`. Feel free to tweak them to fit your needs. Changing `STEAMDECK_MODE="false"` to `true` at the top enables steamdeck / big picture mode.
-* `wineesync` causes crashes with DXVK and is disabled in `launch-steam.sh`.
+* `wineesync` causes crashes with DXVK and is disabled in `launch-steam.sh`. `FSync` is currently only supported on Fedora 44.
 * [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos/releases), [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom) and [Luxtorpeda](https://luxtorpeda.org/) are supported. Some games may only work with [GE-Proton](https://github.com/gloriouseggroll/proton-ge-custom).
 * [ProtonPlus](https://github.com/Vysp3r/ProtonPlus) can be used to install custom Proton versions. Just download and run the latest [aarch64 appimage](https://github.com/Vysp3r/ProtonPlus/releases).
 * FEX currently does not support 32-bit games because of severe graphical bugs. Use non-FEX Proton versions like Experimental for 32-bit games.
