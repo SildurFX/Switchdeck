@@ -69,6 +69,52 @@ elif command -v dnf &>/dev/null; then
         printf "\nFound conflicting system steam package. Uninstalling..\n"
         sudo dnf remove -y steam steam-launcher
     } || true
+
+    # check and install box64 and box64-binfmts
+    if ! command -v box64 &>/dev/null; then
+        printf "\nBox64 not found. Installing Box64 and Box64-binfmts.. (Requires sudo)\n"
+        sudo dnf install box64-tegrax1 box64-binfmts -y
+        sudo systemctl restart systemd-binfmt || true
+        printf "\nBox64 installation complete.\n"
+    else
+        printf "\nBox64 is already installed.\n"
+
+        # Ensure binfmts subpackage is added
+        if [ ! -f /proc/sys/fs/binfmt_misc/box64 ]; then
+            printf "Box64 integration rules are missing. Installing box64-binfmts... (Requires sudo)\n"
+            sudo dnf install box64-binfmts -y
+            sudo systemctl restart systemd-binfmt || true
+        else
+            printf "Box64 rules are already active. Skipping.\n"
+        fi
+    fi
+
+    # check and install gtk2
+    if ! rpm -q gtk2 &>/dev/null; then
+        printf "\nGTK2 not found. Installing GTK2.. (Requires sudo)\n"
+        sudo dnf install gtk2 -y
+        printf "\nGTK2 installation complete.\n"
+    else
+        printf "\nGTK2 is already installed. Skipping installation.\n"
+    fi
+
+    # set zram to 3GB
+    ZRAM_CONF="/etc/systemd/zram-generator.conf.d/99-switchdeck.conf"
+    zram_size=$(swapon --noheadings --bytes --show=NAME,SIZE | awk '$1 ~ /^\/dev\/zram/ {s += $2} END {print s + 0}')
+    if [ "$zram_size" -lt 3000000000 ]; then
+        printf "\nSetting ZRAM size to 3GB.. (Requires sudo)\n"
+        sudo mkdir -p /etc/systemd/zram-generator.conf.d
+        printf "[zram0]\nzram-size = 3072\ncompression-algorithm = lz4\n" | sudo tee "$ZRAM_CONF" >/dev/null
+
+        sudo systemctl stop systemd-zram-setup@zram0.service 2>/dev/null || true
+        sudo swapoff /dev/zram0 2>/dev/null || true
+        sudo zramctl --reset /dev/zram0 2>/dev/null || true
+        sudo systemctl daemon-reload
+        sudo systemctl start systemd-zram-setup@zram0.service 2>/dev/null || true
+        sudo systemctl start dev-zram0.swap 2>/dev/null || true
+    else
+        printf "\nZRAM is already 3GB. Skipping.\n"
+    fi
 # arch
 elif command -v pacman &>/dev/null; then
     pacman -Qq steam &>/dev/null && {

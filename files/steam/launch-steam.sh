@@ -40,7 +40,7 @@ export PROTON_DXVK_SAREK=1              # Use the dxvk-sarek fork as DXVK replac
 # Wine:
 export WINEESYNC=0                      # Supported but crashes dxvk and only works with wined3d
 export PROTON_NO_ESYNC=1                # set WINEESYNC=1 and PROTON_NO_ESYNC=0 to enable esync
-export PROTON_NO_FSYNC=1                # requires Kernel 5.x+
+export PROTON_NO_FSYNC=0                # requires Kernel 5.16+. Supported on Fedora 44/45, thanks to Azkali backporting it to Kernel L4T Kernel 4.9.
 export PROTON_NO_NTSYNC=1               # requires Kernel 6.12+
 export STAGING_WRITECOPY=1              # Uses copy-on-write for shared memory to improve stability and prevent corruption
 export STAGING_SHARED_MEMORY=1          # Enables shared memory segments to reduce overhead and improve startup times
@@ -65,6 +65,7 @@ export DXVK_LOG_LEVEL=none              # [none error warn info debug] Controls 
 
 # Steam launch flags:
 STEAM_FLAGS=""
+# STEAM_FLAGS+=" -deckard"              # Pretend to be a steam frame.
 STEAM_FLAGS+=" -vrskip"                 # Skip VR initialization entirely no matter who asks for it
 STEAM_FLAGS+=" -fasthtml"               # Enable fast child html for any platform
 STEAM_FLAGS+=" -vrdisable"             	# Disable VR - never even try to load OpenVR DLLs
@@ -159,7 +160,6 @@ C0="$STEAMROOT/steamapps/compatdata/0"
 [[ -d "$C0" && ! -L "$C0" ]] && rm -rf "$C0"
 [[ ! -e "$C0" ]] && ln -s /dev/null "$C0"
 
-# TODO: Adjust for arm64 and build arm64ec version.
 # Patch both Native and GE-Proton with DXVK-Sarek and VKD3D v2.3.1
 DX_SRC="$SWITCHDECK_DIR/DXVK"
 VK_SRC="$SWITCHDECK_DIR/VKD3D"
@@ -175,10 +175,20 @@ if [ -d "$DX_SRC" ] && [ -d "$VK_SRC" ]; then
         if [ ! -e "$DX_CHECK" ] || [ ! -e "$VK_CHECK" ] || [ ! -L "$DX_CHECK" ] || [ ! -L "$VK_CHECK" ]; then
             log "Patching: $(basename "$p_dir")"
             
+            # Patch Steam Proton (ARM64) with DXVK-Sarek
+            # TODO: Replace with standalone package compiled for arm64ec
+            DXARM64_SC="$STEAMROOT/compatibilitytools.d/Proton 11.0-2e Armv8.0 (FEX)/files/lib/wine/dxvk-sarek/aarch64-windows"
+            if [ ! -d "$DX_SRC/build/xArm64ec" ]; then
+                mkdir -p "$DX_SRC/build/xArm64ec"
+                cp -r "$DXARM64_SC"/*.dll "$DX_SRC/build/xArm64ec/"
+            fi
+
             # DXVK
+            DXARM64="$p/lib/wine/dxvk/aarch64-windows"
             DX64="$p/lib/wine/dxvk/x86_64-windows"
             DX32="$p/lib/wine/dxvk/i386-windows"
-            mkdir -p "$DX64" "$DX32"
+            mkdir -p "$DXARM64" "$DX64" "$DX32"
+            for f in "$DX_SRC/build/xArm64ec"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DXARM64/${f##*/}"; done
             for f in "$DX_SRC/build/x64"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX64/${f##*/}"; done
             for f in "$DX_SRC/build/x32"/*.dll; do [ -e "$f" ] && ln -sf "$f" "$DX32/${f##*/}"; done
             
@@ -333,7 +343,14 @@ remoteplay_wrapper() {
         cat << 'EOF' > "$SC.new"
 #!/bin/bash
 [ -n "$LD_LIBRARY_PATH" ] && export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | sed -E 's|[^:]*steamrtarm64[^:]*:?||g; s|:$||')
-exec box64 "$HOME/.local/share/Steam/steamrt64/streaming_client" "$@"
+LIB_DIR=($HOME/.local/share/Steam/steamrt64/pv-runtime/steam-runtime-steamrt/steamrt3c_platform_*/files/lib/x86_64-linux-gnu)
+STREAM_DIR="$HOME/.local/share/Steam/steamrt64"
+if [[ -d "${LIB_DIR[0]}" ]]; then
+    for lib in libstdc++.so.6 libpipewire-0.3.so.0; do
+        [[ ! -f "$STREAM_DIR/$lib" ]] && cp "${LIB_DIR[0]}/$lib".* "$STREAM_DIR/$lib" 2>/dev/null
+    done
+fi
+exec box64 "$STREAM_DIR/streaming_client" "$@"
 EOF
         chmod +x "$SC.new" && mv -f "$SC.new" "$SC"
     fi
