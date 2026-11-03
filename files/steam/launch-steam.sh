@@ -16,7 +16,7 @@
 # DXVK:	  https://github.com/pythonlover02/DXVK-Sarek/blob/main/dxvk.conf
 # Box64:  https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md
 #
-# Steam games can be launched with: SWITCHDECK_GAMEMODE=1 or 2 %command% to free up 1GB+ of RAM.
+# Steam games can be launched with: SD_GAMEMODE=1 or 2 %command% to free up 1GB+ of RAM.
 # Mode 1: Unloads steamwebhelper on game launch and restores it on game exit.
 # Mode 2 (Aggressive): Also stops KDE Plasma & background services, including internet.
 ########################################################################################################################################
@@ -33,7 +33,7 @@ export PROTON_DXVK_SAREK=1              # Use the dxvk-sarek fork as DXVK replac
 # Wine:
 export WINEESYNC=0                      # Supported but crashes dxvk and only works with wined3d
 export PROTON_NO_ESYNC=1                # set WINEESYNC=1 and PROTON_NO_ESYNC=0 to enable esync
-export PROTON_NO_FSYNC=1                # requires Kernel 5.x+
+export PROTON_NO_FSYNC=0                # requires Kernel 5.16+. Supported on Fedora 44/45, thanks to Azkali backporting it to Kernel L4T Kernel 4.9.
 export PROTON_NO_NTSYNC=1               # requires Kernel 6.12+
 export STAGING_WRITECOPY=1              # Uses copy-on-write for shared memory to improve stability and prevent corruption
 export STAGING_SHARED_MEMORY=1          # Enables shared memory segments to reduce overhead and improve startup times
@@ -58,6 +58,7 @@ export DXVK_LOG_LEVEL=none              # [none error warn info debug] Controls 
 
 # Steam launch flags:
 STEAM_FLAGS=""
+# STEAM_FLAGS+=" -deckard"              # Pretend to be a steam frame.
 STEAM_FLAGS+=" -vrskip"                 # Skip VR initialization entirely no matter who asks for it
 STEAM_FLAGS+=" -fasthtml"               # Enable fast child html for any platform
 STEAM_FLAGS+=" -vrdisable"             	# Disable VR - never even try to load OpenVR DLLs
@@ -255,7 +256,7 @@ if [ "$ENABLE_GAMEMODE" = "true" ]; then
         # Scan /proc to find active gamemode PID
         find_gamemode_pid() {
             for p in /proc/[0-9]*; do
-                [ -r "$p/environ" ] && grep -zqE "^(SWITCHDECK_GAMEMODE|SD_GAMEMODE)=" "$p/environ" 2>/dev/null && echo "${p##*/}" && return 0
+                [ -r "$p/environ" ] && grep -zq "^SD_GAMEMODE=" "$p/environ" 2>/dev/null && echo "${p##*/}" && return 0
             done
             return 1
         }
@@ -285,7 +286,7 @@ if [ "$ENABLE_GAMEMODE" = "true" ]; then
                 [ -z "$GAME_PID" ] && { sleep 15; continue; }
                 
                 # Detect mode 1 or 2 from application context
-                grep -zqE "^(SWITCHDECK_GAMEMODE|SD_GAMEMODE)=2" "/proc/$GAME_PID/environ" 2>/dev/null && FLAG=2 || FLAG=1
+                grep -zq "^SD_GAMEMODE=2" "/proc/$GAME_PID/environ" 2>/dev/null && FLAG=2 || FLAG=1
 
                 # Setup SD_SWAP AND SD_ZRAM
                 RUN_ZRAM=0
